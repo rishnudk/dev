@@ -1,8 +1,10 @@
-import app from "./app"
 import dotenv from "dotenv"
+import path from "path"
 
+// Load env vars BEFORE any other imports that depend on them
+dotenv.config({ path: path.resolve(__dirname, ".env") })
 
-dotenv.config({ path: "/.env" })
+import app from "./app"
 
 const PORT = process.env.PORT || 5000
 

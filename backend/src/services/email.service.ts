@@ -9,6 +9,9 @@ const transporter = nodemailer.createTransport({
   auth: {
     user: env.smtp.user,
     pass: env.smtp.pass,
+  },
+  tls: {
+    rejectUnauthorized: false  // needed for dev — Gmail self-signed cert issue
   }
 })
 
