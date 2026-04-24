@@ -4,6 +4,7 @@ import express from "express"
 import helmet from "helmet"
 import {healthRoute} from "./routes/health.route"
 import authRouter from "./routes/auth.route"
+import userRouter from "./routes/user.route"
 import {errorMiddleware} from "./middlewares/error.middleware"
 import cors from "cors"
 import morgan from "morgan"
@@ -20,7 +21,7 @@ app.use(morgan('dev'))
 app.use('/', healthRoute)
 
 app.use('/api/auth', authRouter)
-
+app.use('/api/users', userRouter)
 app.use(errorMiddleware)
 
 export default app
