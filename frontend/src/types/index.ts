@@ -25,3 +25,14 @@ export interface Portfolio {
   user:          User
   tags:          { tag: { id: string; name: string } }[]
 }
+
+export type FeedType  = 'trending' | 'newest' | 'top'
+export type FieldType = 'ALL' | 'FRONTEND' | 'BACKEND' |
+                        'FULLSTACK' | 'MOBILE' | 'DEVOPS' |
+                        'DATA' | 'DESIGN' | 'OTHER'
+
+export interface FeedResponse {
+  items:      Portfolio[]
+  nextCursor: string | null
+  hasMore:    boolean
+}

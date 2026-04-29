@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import api from '@/lib/axios'
 import { TECH_STACK_OPTIONS } from '@/lib/constants'
+import OnboardingGuard from '@/components/OnboardingGuard'
 
 export default function SubmitPage() {
   const router  = useRouter()
@@ -108,6 +109,7 @@ export default function SubmitPage() {
   }
 
   return (
+    <OnboardingGuard requireAuth>
     <div className="min-h-screen bg-gray-950 py-12 px-4">
       <div className="max-w-2xl mx-auto">
 
@@ -273,5 +275,6 @@ what technologies you used, the design decisions you made..."
         </div>
       </div>
     </div>
+    </OnboardingGuard>
   )
 }

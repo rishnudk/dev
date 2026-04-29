@@ -1,26 +1,28 @@
-import type { Metadata } from 'next'
+'use client'
+
 import { Inter } from 'next/font/google'
 import './globals.css'
 import AuthProvider from '@/components/AuthProvider'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { useState } from 'react'
 
 const inter = Inter({ subsets: ['latin'] })
-
-export const metadata: Metadata = {
-  title: 'DevShowcase',
-  description: 'Where developers showcase their portfolio designs',
-}
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const [queryClient] = useState(() => new QueryClient())
+
   return (
-    <html lang="en" className="dark">
+    <html lang="en">
       <body className={`${inter.className} bg-gray-950 text-white`}>
-        <AuthProvider>
-          {children}
-        </AuthProvider>
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>
+            {children}
+          </AuthProvider>
+        </QueryClientProvider>
       </body>
     </html>
   )

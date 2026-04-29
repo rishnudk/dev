@@ -5,25 +5,25 @@ import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@/store/auth.store'
 
 export default function OnboardingGuard({
-  children
+  children,
+  requireAuth = false  // ← new prop
 }: {
-  children: React.ReactNode
+  children:    React.ReactNode
+  requireAuth?: boolean
 }) {
-  const router = useRouter()
+  const router             = useRouter()
   const { user, isLoggedIn } = useAuthStore()
 
   useEffect(() => {
-    // Not logged in → go to login
-    if (!isLoggedIn) {
+    if (requireAuth && !isLoggedIn) {
       router.replace('/login')
       return
     }
 
-    // Logged in but not onboarded → go to onboarding
     if (isLoggedIn && user && !user.isOnboarded) {
       router.replace('/onboarding')
     }
-  }, [isLoggedIn, user])
+  }, [isLoggedIn, user, requireAuth])
 
   return <>{children}</>
 }
