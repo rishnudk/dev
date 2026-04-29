@@ -6,6 +6,7 @@ import {healthRoute} from "./routes/health.route"
 import authRouter from "./routes/auth.route"
 import userRouter from "./routes/user.route"
 import {errorMiddleware} from "./middlewares/error.middleware"
+import portfolioRouter from "./routes/portfolio.route"
 import cors from "cors"
 import morgan from "morgan"
 
@@ -22,6 +23,7 @@ app.use('/', healthRoute)
 
 app.use('/api/auth', authRouter)
 app.use('/api/users', userRouter)
+app.use('/api/portfolios', portfolioRouter)
 app.use(errorMiddleware)
 
 export default app
