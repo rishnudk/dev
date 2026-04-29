@@ -1,5 +1,7 @@
+import { Field } from '@prisma/client'
 import prisma from '../config/db'
 import { ApiError } from '../utils/ApiError'
+import { rankingService } from './ranking.service'
 import { uploadService } from './upload.service'
 
 interface CreatePortfolioInput {
@@ -134,5 +136,92 @@ export const portfolioService = {
     await prisma.portfolio.delete({ where: { id } })
 
     return { message: 'Portfolio deleted' }
+  },
+ 
+  // ── GET FEED ─────────────────────────────────────────────
+  async getFeed(params: {
+    feed:   'trending' | 'newest' | 'top'
+    field?: string
+    cursor?: string
+    limit:  number
+    requestingUserId?: string
+  }) {
+    const { feed, field, cursor, limit, requestingUserId } = params
+
+    // Build field filter if provided
+    const fieldFilter = field && field !== 'ALL'
+      ? { user: { field: field as Field } }
+      : {}
+
+    // Build cursor for pagination
+    const cursorObj = cursor
+      ? { id: cursor }
+      : undefined
+
+    // Build orderBy based on feed type
+    const orderBy = {
+      trending: { trendingScore: 'desc' as const },
+      newest:   { createdAt:     'desc' as const },
+      top:      { votes:         { _count: 'desc' as const } }
+    }[feed]
+
+    const portfolios = await prisma.portfolio.findMany({
+      where:   fieldFilter,
+      orderBy,
+      take:    limit + 1,  // fetch one extra to know if there's a next page
+      cursor:  cursorObj,
+      skip:    cursor ? 1 : 0,
+      include: {
+        user: {
+          select: {
+            id: true, name: true, username: true,
+            avatarUrl: true, field: true
+          }
+        },
+        tags:   { include: { tag: true } },
+        _count: { select: { votes: true } },
+        votes:  requestingUserId
+          ? { where: { userId: requestingUserId } }
+          : false
+      }
+    })
+
+    // Check if there are more pages
+    const hasMore     = portfolios.length > limit
+    const items       = hasMore ? portfolios.slice(0, -1) : portfolios
+    const nextCursor  = hasMore ? items[items.length - 1].id : null
+
+    // Shape the response
+    const shaped = items.map((p) => ({
+      ...p,
+      voteCount: p._count.votes,
+      hasVoted:  requestingUserId
+        ? (p.votes as any[]).length > 0
+        : false
+    }))
+
+    return { items: shaped, nextCursor, hasMore }
+  },
+
+
+  // ── UPDATE TRENDING SCORES ───────────────────────────────
+  // Call this after every vote
+  async updateTrendingScore(portfolioId: string) {
+    const portfolio = await prisma.portfolio.findUnique({
+      where:   { id: portfolioId },
+      include: { _count: { select: { votes: true } } }
+    })
+
+    if (!portfolio) return
+
+    const newScore = rankingService.calculateTrendingScore(
+      portfolio._count.votes,
+      portfolio.createdAt
+    )
+
+    await prisma.portfolio.update({
+      where: { id: portfolioId },
+      data:  { trendingScore: newScore }
+    })
   }
 }

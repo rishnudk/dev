@@ -80,5 +80,32 @@ export const portfolioController = {
     } catch (error) {
       next(error)
     }
+  },
+  
+// GET /api/portfolios
+  async getFeed(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const feed   = (req.query.feed   as string) || 'trending'
+      const field  = (req.query.field  as string) || 'ALL'
+      const cursor = req.query.cursor  as string | undefined
+      const limit  = Math.min(Number(req.query.limit) || 12, 50)
+
+      if (!['trending', 'newest', 'top'].includes(feed)) {
+        throw ApiError.badRequest('Invalid feed type')
+      }
+
+      const result = await portfolioService.getFeed({
+        feed:  feed as 'trending' | 'newest' | 'top',
+        field,
+        cursor,
+        limit,
+        requestingUserId: req.user?.userId
+      })
+
+      res.json(ApiResponse.success(result))
+    } catch (error) {
+      next(error)
+    }
   }
+
 }
