@@ -1,18 +1,48 @@
 import { Router } from 'express'
 import { portfolioController } from '../controllers/portfolio.controller'
-import { authMiddleware } from '../middlewares/auth.middleware'
-import { uploadMiddleware } from '../middlewares/upload.middleware'
+import { voteController }      from '../controllers/vote.controller'
+import { authMiddleware }      from '../middlewares/auth.middleware'
+import { optionalAuthMiddleware } from '../middlewares/optionalAuth.middleware'
+import { uploadMiddleware }    from '../middlewares/upload.middleware'
+import { voteLimiter } from '../middlewares/rateLimit.middleware'
 
 const router = Router()
 
-// Public
-router.get('/:id', portfolioController.getPortfolio)
+// ── Feed ─────────────────────────────────────────────────
+router.get('/', optionalAuthMiddleware, portfolioController.getFeed)
 
-// Protected
+// ── Single portfolio ──────────────────────────────────────
+router.get('/:id', optionalAuthMiddleware, portfolioController.getPortfolio)
+
+// ── Vote routes ───────────────────────────────────────────
+router.post(
+  '/:id/vote', 
+  authMiddleware, voteLimiter,
+  voteController.castVote
+)
+
+router.delete(
+  '/:id/vote',
+  authMiddleware, voteLimiter,
+  voteController.removeVote
+)
+
+router.get(
+  '/:id/vote',
+  authMiddleware,
+  voteController.getVoteStatus
+)
+
+router.get(
+  '/:id/voters',
+  voteController.getVoters
+)
+
+// ── Create + Delete portfolio ─────────────────────────────
 router.post(
   '/',
-  authMiddleware,
-  uploadMiddleware.single('heroImage'),  // multer handles the file
+  authMiddleware, voteLimiter, 
+  uploadMiddleware.single('heroImage'),
   portfolioController.createPortfolio
 )
 
