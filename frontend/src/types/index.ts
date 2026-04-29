@@ -36,3 +36,20 @@ export interface FeedResponse {
   nextCursor: string | null
   hasMore:    boolean
 }
+
+export interface UserProfile {
+  id:                  string
+  name:                string
+  username:            string
+  avatarUrl:           string | null
+  bio:                 string | null
+  field:               string | null
+  techStack:           string[]
+  portfolioUrl:        string | null
+  githubUrl:           string | null
+  linkedinUrl:         string | null
+  createdAt:           string
+  portfolios:          Portfolio[]
+  totalPortfolios:     number
+  totalVotesReceived:  number
+}
