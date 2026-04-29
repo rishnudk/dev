@@ -4,6 +4,7 @@ import { ApiResponse } from '../utils/ApiResponse'
 import { ApiError } from '../utils/ApiError'
 import { AuthRequest } from '../types'
 import { Field } from '@prisma/client'
+import prisma from '../config/db'
 
 export const userController = {
 
@@ -70,6 +71,54 @@ export const userController = {
         req.user!.userId
       )
       res.json(ApiResponse.success(result))
+    } catch (error) {
+      next(error)
+    }
+  },
+
+  // GET /api/users/:username/profile
+  async getProfileWithStats(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const { username } = req.params
+      const profile = await userService.getProfileWithStats(
+        username as string,
+        req.user?.userId
+      )
+      res.json(ApiResponse.success(profile))
+    } catch (error) {
+      next(error)
+    }
+  },
+
+
+  // GET /api/users/me/portfolios
+  // Get logged in user's own portfolios
+  async getMyPortfolios(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const portfolios = await prisma.portfolio.findMany({
+        where:   { userId: req.user!.userId },
+        orderBy: { createdAt: 'desc' },
+        include: {
+          _count: { select: { votes: true } },
+          tags:   { include: { tag: true } }
+        }
+      })
+
+      const shaped = portfolios.map((p) => ({
+        ...p,
+        voteCount: p._count.votes,
+        hasVoted:  false
+      }))
+
+      res.json(ApiResponse.success(shaped))
     } catch (error) {
       next(error)
     }

@@ -100,4 +100,69 @@ export const userService = {
 
     return { available: true, message: 'Username is available' }
   }
+  ,
+
+  // ── GET PROFILE WITH STATS ───────────────────────────────
+  async getProfileWithStats(username: string, requestingUserId?: string) {
+    const user = await prisma.user.findUnique({
+      where: { username },
+      select: {
+        id:           true,
+        name:         true,
+        username:     true,
+        avatarUrl:    true,
+        bio:          true,
+        field:        true,
+        techStack:    true,
+        portfolioUrl: true,
+        githubUrl:    true,
+        linkedinUrl:  true,
+        createdAt:    true,
+        portfolios: {
+          orderBy: { trendingScore: 'desc' },
+          include: {
+            _count: { select: { votes: true } },
+            tags:   { include: { tag: true } },
+            // Check if requesting user voted on each portfolio
+            votes: requestingUserId
+              ? { where: { userId: requestingUserId } }
+              : false
+          }
+        },
+        _count: {
+          select: {
+            portfolios: true,
+            votes:      true   // total votes received across all portfolios
+          }
+        }
+      }
+    })
+
+    if (!user) throw ApiError.notFound('User not found')
+
+    // Shape portfolios to include voteCount and hasVoted
+    const portfolios = user.portfolios.map((p) => ({
+      ...p,
+      voteCount: p._count.votes,
+      hasVoted:  requestingUserId
+        ? (p.votes as any[]).length > 0
+        : false
+    }))
+
+    return {
+      ...user,
+      portfolios,
+      totalVotesReceived: user._count.votes,
+      totalPortfolios:    user._count.portfolios
+    }
+  },
+
+
+  // ── UPDATE AVATAR ────────────────────────────────────────
+  async updateAvatar(userId: string, avatarUrl: string) {
+    return prisma.user.update({
+      where: { id: userId },
+      data:  { avatarUrl }
+    })
+  }
 }
