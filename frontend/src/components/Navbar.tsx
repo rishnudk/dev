@@ -26,6 +26,12 @@ export default function Navbar() {
 
         {/* Right side */}
         <div className="flex items-center gap-3">
+          <Link
+            href="/explore"
+            className="px-4 py-2 bg-gray-900 hover:bg-gray-800 border border-gray-700 text-gray-200 text-sm font-medium rounded-xl transition-colors"
+          >
+            Explore
+          </Link>
 
           {isLoggedIn ? (
             <>

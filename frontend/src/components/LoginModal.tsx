@@ -30,7 +30,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
             exit={{ x: 320, opacity: 0 }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
             className="fixed top-4 right-4 w-full max-w-[360px] bg-gray-900 border border-gray-800 
-                       rounded-2xl p-6 shadow-2xl z-[70] overflow-hidden"
+                       rounded-2xl p-6 shadow-2xl z-70 overflow-hidden"
           >
             <div className="flex justify-between items-center mb-8">
               <div>
@@ -48,7 +48,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
 
             <div className="space-y-4">
               <button
-                onClick={() => signIn('google')}
+                onClick={() => signIn('google', { callbackUrl: '/' })}
                 className="w-full flex items-center justify-center gap-3 py-3.5 
                            bg-white hover:bg-gray-100 text-gray-950 font-bold 
                            rounded-xl transition-all active:scale-[0.98]"

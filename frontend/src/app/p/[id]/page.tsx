@@ -78,8 +78,11 @@ export default function PortfolioPage() {
           <div className="text-center">
             <p className="text-4xl mb-3">😕</p>
             <p className="text-white font-bold mb-2">Portfolio not found</p>
-            <Link href="/" className="text-indigo-400 hover:underline text-sm">
-              Back to home
+            <Link
+              href="/explore"
+              className="text-indigo-400 hover:underline text-sm"
+            >
+              Back to explore
             </Link>
           </div>
         </div>

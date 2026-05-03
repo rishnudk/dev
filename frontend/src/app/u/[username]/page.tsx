@@ -69,8 +69,8 @@ export default function ProfilePage() {
             <p className="text-gray-500 mb-4">
               @{username} doesn't exist
             </p>
-            <Link href="/" className="text-indigo-400 hover:underline">
-              Back to home
+            <Link href="/explore" className="text-indigo-400 hover:underline">
+              Back to explore
             </Link>
           </div>
         </div>
